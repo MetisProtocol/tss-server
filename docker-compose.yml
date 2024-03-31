@@ -1,0 +1,44 @@
+version: "3"
+
+services:
+  tss-node-0:
+    container_name: tss-node-0
+    image: "tss-server:latest"
+    build:
+      context: .
+    ports:
+      - "9001:9001"
+    volumes:
+      - "./local_test/tss-node-0:/app/data"
+    command:
+      - "-dev=true"
+      - "-p2pBootstrapPeers"
+      - "/dns/tss-node-0/tcp/4001/p2p/16Uiu2HAm9xRGwnVKVey2e7qApBMVQhUj4UMoVXjFeaKusA7KxxYx,/dns/tss-node-1/tcp/4001/p2p/16Uiu2HAmPZAoSHfYWg9W4WmJJDWv4Cyf1oYFVWN6ULo8t7LCdvX2,/dns/tss-node-2/tcp/4001/p2p/16Uiu2HAm4z7HSPpKrCBqcDX7bhx2K195TZfjEYKBe9M4ioDJgno5"
+
+  tss-node-1:
+    container_name: tss-node-1
+    image: "tss-server:latest"
+    build:
+      context: .
+    ports:
+      - "9002:9001"
+    volumes:
+      - "./local_test/tss-node-1:/app/data"
+    command:
+      - "-dev=true"
+      - "-p2pBootstrapPeers"
+      - "/dns/tss-node-0/tcp/4001/p2p/16Uiu2HAm9xRGwnVKVey2e7qApBMVQhUj4UMoVXjFeaKusA7KxxYx,/dns/tss-node-1/tcp/4001/p2p/16Uiu2HAmPZAoSHfYWg9W4WmJJDWv4Cyf1oYFVWN6ULo8t7LCdvX2,/dns/tss-node-2/tcp/4001/p2p/16Uiu2HAm4z7HSPpKrCBqcDX7bhx2K195TZfjEYKBe9M4ioDJgno5"
+
+  tss-node-2:
+    container_name: tss-node-2
+    image: "tss-server:latest"
+    build:
+      context: .
+    ports:
+      - "9003:9001"
+    volumes:
+      - "./local_test/tss-node-2:/app/data"
+    command:
+      - "-dev=true"
+      - "-p2pBootstrapPeers"
+      - "/dns/tss-node-0/tcp/4001/p2p/16Uiu2HAm9xRGwnVKVey2e7qApBMVQhUj4UMoVXjFeaKusA7KxxYx,/dns/tss-node-1/tcp/4001/p2p/16Uiu2HAmPZAoSHfYWg9W4WmJJDWv4Cyf1oYFVWN6ULo8t7LCdvX2,/dns/tss-node-2/tcp/4001/p2p/16Uiu2HAm4z7HSPpKrCBqcDX7bhx2K195TZfjEYKBe9M4ioDJgno5"

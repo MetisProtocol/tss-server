@@ -1,0 +1,190 @@
+syntax = "proto3";
+
+option go_package = "github.com/metis-protocol/tss-server/tss";
+
+package tss;
+
+import "google/protobuf/timestamp.proto";
+
+
+// PartyID represents a participant in the TSS protocol rounds.
+// Note: The `id` and `moniker` are provided for convenience to allow you to track participants easier.
+// The `id` is intended to be a unique string representation of `key` and `moniker` can be anything (even left blank).
+message PartyID {
+  string id = 1; // p2p peer id
+  string moniker = 2; // p2p peer alias
+  bytes key = 3; // p2p peer public key
+}
+
+enum KeyStatus {
+  KEY_STATUS_UNKNOWN = 0;
+  KEY_STATUS_PENDING = 1;
+  KEY_STATUS_READY = 2;
+  KEY_STATUS_ERROR = 3;
+}
+
+message KeyData {
+  string key_id = 1;
+  string key_session_id = 2;
+  int32 threshold = 3;
+  repeated PartyID all_party_id = 4;
+  bytes pubkey = 5; 
+  KeyStatus status = 6;
+  string save_data_json = 7; // keygen.LocalPartySaveData
+
+  google.protobuf.Timestamp created_time = 101;
+  google.protobuf.Timestamp updated_time = 102;
+}
+
+message KeyGenPrepareMsg {
+  string session_id = 1;
+  string key_id = 2;
+  int32 threshold = 3;
+  repeated PartyID all_party_id = 4;
+  google.protobuf.Timestamp deadline = 101;
+}
+
+message KeyGenReadyMsg {
+}
+
+message KeyGenStartMsg {
+}
+
+message KeyGenFinishMsg {
+  bool is_success = 1;
+  string failure_reason = 2;
+  bytes public_key = 3;
+}
+
+message KeySignPrepareMsg {
+  string sign_id = 1;
+  string session_id = 2;
+  string key_id = 3;
+  string key_session_id = 4;
+  bytes sign_msg = 5;
+  google.protobuf.Timestamp deadline = 101;
+}
+
+message KeySignReadyMsg {
+}
+
+message KeySignStartMsg {
+  repeated PartyID sign_party_id = 3;
+}
+
+message KeySignCancelMsg {
+}
+
+message KeySignFinishMsg {
+  bool is_success = 1;
+  string failure_reason = 2;
+  bytes signature_r = 3;
+  bytes signature_s = 4;
+  bytes signature_v = 5;
+}
+
+message ProcessUpdateMsg {
+  string from_party_id = 1;
+  bytes msg_wire_bytes = 2;
+  bool is_broadcast = 3;
+}
+
+message ProcessErrorMsg {
+  string error_msg = 1;
+}
+
+message TssP2PMsg {
+  oneof msg_type {
+    KeyGenPrepareMsg key_gen_prepare_msg = 11;
+    KeyGenReadyMsg key_gen_ready_msg = 12;
+    KeyGenStartMsg key_gen_start_msg = 13;
+    KeyGenFinishMsg key_gen_finish_msg = 14;
+
+    KeySignPrepareMsg key_sign_prepare_msg = 21;
+    KeySignReadyMsg key_sign_ready_msg = 22;
+    KeySignStartMsg key_sign_start_msg = 23;
+    KeySignCancelMsg key_sign_cancel_msg = 24;
+    KeySignFinishMsg key_sign_finish_msg = 25;
+
+    ProcessUpdateMsg process_update_msg = 41;
+    ProcessErrorMsg process_error_msg = 42;
+  }
+}
+
+message GetLocalPartyIdRequest {
+}
+
+message GetLocalPartyIdResponse {
+  PartyID party_id = 1;
+}
+
+message GetKeyRequest {
+  string key_id = 1;
+}
+
+message GetKeyResponse {
+  string key_id = 1;
+  bytes public_key = 2;
+  int32 threshold = 3;
+  repeated PartyID all_party_id = 4;
+  KeyStatus status = 5;
+}
+
+message KeyGenRequest {
+  string key_id = 1;
+  int32 threshold = 2;
+  repeated PartyID all_party_id = 3;
+}
+
+message KeyGenResponse {
+  string session_id = 1;
+  bytes public_key = 2;
+}
+
+message KeySignRequest {
+  string key_id = 1;
+  bytes sign_msg = 2;
+  string sign_id = 3;
+}
+
+message KeySignResponse {
+  string session_id = 1;
+  bytes signature_r = 2;
+  bytes signature_s = 3;
+  bytes signature_v = 4;
+}
+
+message KeyDeleteRequest {
+  string key_id = 1;
+}
+
+message KeyDeleteResponse {
+}
+
+message VerifySignatureRequest {
+  bytes sign_msg = 1;
+  bytes public_key = 2;
+  bytes signature_r = 3;
+  bytes signature_s = 4;
+  bytes signature_v = 5;
+}
+
+message VerifySignatureResponse {
+  bool is_valid = 1;
+}
+
+service TssService {
+
+  rpc GetLocalPartyId (GetLocalPartyIdRequest) returns (GetLocalPartyIdResponse);
+
+  rpc GetKey (GetKeyRequest) returns (GetKeyResponse);
+
+  rpc KeyGen (KeyGenRequest) returns (KeyGenResponse);
+
+  rpc KeySign (KeySignRequest) returns (KeySignResponse);
+
+  rpc KeyDelete (KeyDeleteRequest) returns (KeyDeleteResponse);
+
+  rpc VerifySignature (VerifySignatureRequest) returns (VerifySignatureResponse);
+
+}
